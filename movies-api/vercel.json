@@ -1,0 +1,12 @@
+{
+    "name": "curso-backend-nodejs",
+    "version": 2,
+    "builds": [{ "src": "src/index.js", "use": "@now/node"}],
+    "routes": [{ "src": "/(.*)", "dest": "src/index.js" }],
+    "env": {
+        "DB_USER": "@platzivideos-db-name",
+        "DB_PASSWORD": "@platzivideos-db-host",
+        "DB_HOST": "@platzivideos-db-password",
+        "DB_NAME": "@platzivideos-db-user"
+    }
+}
