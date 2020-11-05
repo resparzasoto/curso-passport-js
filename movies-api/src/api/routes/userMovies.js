@@ -27,5 +27,40 @@ function userMoviesApi(app) {
             next(error);
         }
     });
+
+    router.post('/', validationHandler(createUserMovieSchema), async function (req, res, next) {
+        const {  body: userMovie } = req;
+
+        try {
+            const createUserMovieId = await userMoviesService.createUserMovie({
+                userMovie
+            });
+
+            res.status(200).json({
+                data: createUserMovieId,
+                message: 'user movie created',
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    router.delete('/:id', validationHandler({ id: movieIdSchema }, 'params'), async function (req, res, next) {
+        const { id } = req.params;
+
+        try {
+            const deletedUserMovieId = await userMoviesService.deleteUserMovie({
+                id
+            });
+
+            res.status(200).json({
+                data: deletedUserMovieId,
+                message: 'user movie deleted'
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
 }
 
+module.exports = userMoviesApi;

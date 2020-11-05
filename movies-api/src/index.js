@@ -9,6 +9,8 @@ const app = express();
 const { config } = require('./config/index');
 
 const moviesApi = require('./api/routes/movies');
+const userMoviesApi = require('./api/routes/userMovies');
+
 const notFoundHandler = require('./utils/middleware/notFoundHandler');
 
 const { logErrors, errorHandler, wrapErrors } = require('./utils/middleware/errorHandler');
@@ -22,6 +24,7 @@ app.use(cors());
 app.use(morgan('tiny'));
 
 moviesApi(app);
+userMoviesApi(app);
 
 app.use(slash());
 
