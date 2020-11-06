@@ -8,6 +8,7 @@ const app = express();
 
 const { config } = require('./config/index');
 
+const authApi = require('./api/routes/auth');
 const moviesApi = require('./api/routes/movies');
 const userMoviesApi = require('./api/routes/userMovies');
 
@@ -23,6 +24,7 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan('tiny'));
 
+authApi(app);
 moviesApi(app);
 userMoviesApi(app);
 
