@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv-safe').config();
 
 const config = {
     api: {
@@ -12,6 +12,13 @@ const config = {
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
         db: process.env.DB_NAME,
+    },
+    users: {
+        defaultAdminPassword: process.env.DEFAULT_ADMIN_PASSWORD,
+        defaultUserPassword: process.env.DEFAULT_USER_PASSWORD,
+        authJwtSecret: process.env.AUTH_JWT_SECRET,
+        publicApiKeyToken: process.env.PUBLIC_API_KEY_TOKEN,
+        adminApiKeyToken: process.env.ADMIN_API_KEY_TOKEN,
     },
 };
 
