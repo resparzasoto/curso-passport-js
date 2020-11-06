@@ -6,6 +6,9 @@ const config = {
         dev: process.env.NODE_ENV === 'development',
         port: process.env.PORT,
         cors: process.env.CORS,
+        publicApiKeyToken: process.env.PUBLIC_API_KEY_TOKEN,
+        adminApiKeyToken: process.env.ADMIN_API_KEY_TOKEN,
+        authJwtSecret: process.env.AUTH_JWT_SECRET,
     },
     mongo: {
         user: process.env.DB_USER,
@@ -16,9 +19,6 @@ const config = {
     users: {
         defaultAdminPassword: process.env.DEFAULT_ADMIN_PASSWORD,
         defaultUserPassword: process.env.DEFAULT_USER_PASSWORD,
-        authJwtSecret: process.env.AUTH_JWT_SECRET,
-        publicApiKeyToken: process.env.PUBLIC_API_KEY_TOKEN,
-        adminApiKeyToken: process.env.ADMIN_API_KEY_TOKEN,
     },
 };
 
