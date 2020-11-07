@@ -1,26 +1,31 @@
 const express = require('express');
-const response = require('../../network/response');
+const passport = require('passport');
+
+const MoviesService = require('../services/movies');
+
 const validationHandler = require('../../utils/middleware/validationHandler');
 const { movieIdSchema, createMovieSchema, updateMovieSchema } = require('../../utils/schemas/movie');
-const MoviesService = require('../services/movies');
 const cacheResponse = require('../../utils/cacheResponse');
 const { FIVE_MINUTES_IN_SECONDS, SIXTY_MINUTES_IN_SECONDS } = require('../../utils/time');
+
+const response = require('../../network/response');
+
+require('../../utils/auth/strategies/jwt');
 
 function moviesApi(app) {
     const router = express.Router({
         caseSensitive: app.get('case sensitive routing'),
         strict: app.get('strict routing'),
     });
-
     app.use('/api/movies', router);
 
     const moviesService = new MoviesService();
 
-    router.get('/', getMovies);
-    router.get('/:id', validationHandler({ id: movieIdSchema}, 'params'), getMovie);
-    router.post('/', validationHandler(createMovieSchema), createMovie);
-    router.put('/:id', validationHandler({ id: movieIdSchema}, 'params'), validationHandler(updateMovieSchema), updateMovie);
-    router.delete('/:id', validationHandler({ id: movieIdSchema}, 'params'), deleteMovie);
+    router.get('/', passport.authenticate('jwt', { session: false }), getMovies);
+    router.get('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), getMovie);
+    router.post('/', passport.authenticate('jwt', { session: false }), validationHandler(createMovieSchema), createMovie);
+    router.put('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), validationHandler(updateMovieSchema), updateMovie);
+    router.delete('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), deleteMovie);
 
     async function getMovies(req, res, next) {
         try {
