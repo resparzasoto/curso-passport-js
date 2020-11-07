@@ -4,6 +4,8 @@ const passport = require('passport');
 const MoviesService = require('../services/movies');
 
 const validationHandler = require('../../utils/middleware/validationHandler');
+const scopesValidationHandler = require('../../utils/middleware/scopesValidationHandler');
+
 const { movieIdSchema, createMovieSchema, updateMovieSchema } = require('../../utils/schemas/movie');
 const cacheResponse = require('../../utils/cacheResponse');
 const { FIVE_MINUTES_IN_SECONDS, SIXTY_MINUTES_IN_SECONDS } = require('../../utils/time');
@@ -21,11 +23,11 @@ function moviesApi(app) {
 
     const moviesService = new MoviesService();
 
-    router.get('/', passport.authenticate('jwt', { session: false }), getMovies);
-    router.get('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), getMovie);
-    router.post('/', passport.authenticate('jwt', { session: false }), validationHandler(createMovieSchema), createMovie);
-    router.put('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), validationHandler(updateMovieSchema), updateMovie);
-    router.delete('/:id', passport.authenticate('jwt', { session: false }), validationHandler({ id: movieIdSchema}, 'params'), deleteMovie);
+    router.get('/', passport.authenticate('jwt', { session: false }), scopesValidationHandler(['read:movies']), getMovies);
+    router.get('/:id', passport.authenticate('jwt', { session: false }), scopesValidationHandler(['read:movies']), validationHandler({ id: movieIdSchema}, 'params'), getMovie);
+    router.post('/', passport.authenticate('jwt', { session: false }), scopesValidationHandler(['create:movies']), validationHandler(createMovieSchema), createMovie);
+    router.put('/:id', passport.authenticate('jwt', { session: false }), scopesValidationHandler(['update:movies']), validationHandler({ id: movieIdSchema}, 'params'), validationHandler(updateMovieSchema), updateMovie);
+    router.delete('/:id', passport.authenticate('jwt', { session: false }), scopesValidationHandler(['delete:movies']), validationHandler({ id: movieIdSchema}, 'params'), deleteMovie);
 
     async function getMovies(req, res, next) {
         try {
