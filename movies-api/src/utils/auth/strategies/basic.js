@@ -1,6 +1,6 @@
 const passport = require('passport');
 const { BasicStrategy } = require('passport-http');
-const Boom = require('@hapi/boom');
+const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
 
 const UsersService = require('../../../api/services/users');
@@ -13,11 +13,11 @@ passport.use(
             const user = await userService.getUser({ email });
 
             if (!user) {
-                return done(Boom.unauthorized(), false);
+                return done(boom.unauthorized(), false);
             }
 
             if (!(await bcrypt.compare(password, user.password))) {
-                return done(Boom.unauthorized(), false);
+                return done(boom.unauthorized(), false);
             }
 
             delete user.password;

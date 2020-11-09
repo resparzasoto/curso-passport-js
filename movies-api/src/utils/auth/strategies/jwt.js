@@ -1,6 +1,6 @@
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
-const Boom = require('@hapi/boom');
+const boom = require('@hapi/boom');
 
 const UsersService = require('../../../api/services/users');
 const { config } = require('../../../config');
@@ -17,7 +17,7 @@ passport.use(
             const user = await usersService.getUser({ email: tokenPayload.email });
 
             if (!user) {
-                return cb(Boom.unauthorized(), false);
+                return cb(boom.unauthorized(), false);
             }
 
             delete user.password;
