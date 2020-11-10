@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const axios = require('axios');
 
 const { config } = require('./config');
+const { TWO_HOURS_IN_MILLISECONDS, THIRTY_DAYS_IN_MILLISECONDS } = require('./utils/time');
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.post('/user-movies', getUserMovies);
 app.delete('/user-movies/:id', getUserMovie);
 
 async function signIn(req, res, next) {
+    const { rememberMe } = req.body;
+
     passport.authenticate('basic', function(error, data) {
         try {
             if (error || !data) {
@@ -37,6 +40,7 @@ async function signIn(req, res, next) {
                 res.cookie('token', data.token, {
                     httpOnly: !config.dev,
                     secure: !config.dev,
+                    maxAge: rememberMe ? THIRTY_DAYS_IN_MILLISECONDS : TWO_HOURS_IN_MILLISECONDS
                 });
 
                 res.status(200).json(data.user);
