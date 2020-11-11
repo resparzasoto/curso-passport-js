@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const passport = require('passport');
 const boom = require('@hapi/boom');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const axios = require('axios');
 
 const { config } = require('./config');
@@ -13,16 +14,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('tiny'));
-app.use(cookieParser())
+app.use(cookieParser());
+app.use(session({ secret: config.twitter.sessionSecret }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 require('./utils/auth/strategies/basic');
 require('./utils/auth/strategies/oauth');
 require('./utils/auth/strategies/google');
+require('./utils/auth/strategies/twitter');
 
 app.get('/auth/google-oauth', passport.authenticate('google-oauth', { scope: ['email', 'profile', 'openid'] }));
 app.get('/auth/google-oauth/callback', passport.authenticate('google-oauth', { session: false }), googleOAuthCallback);
 app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile', 'openid'] }));
 app.get('/auth/google/callback', passport.authenticate('google', { session: false }), googleCallback);
+app.get('/auth/twitter', passport.authenticate('twitter'));
+app.get('/auth/twitter/callback', passport.authenticate('twitter', { session: false }), twitterCallback);
 app.post('/auth/sign-in', signIn);
 app.post('/auth/sign-up', signUp);
 app.get('/movies', getMovies);
@@ -142,6 +149,21 @@ async function googleCallback(req, res, next) {
     const { token, ...user } = req.user.body;
 
     res.cookie('token', token,  {
+        httpOnly: !config.api.dev,
+        secure: !config.api.dev
+    });
+
+    res.status(200).json(user);
+}
+
+async function twitterCallback(req, res, next) {
+    if (!req.user) {
+        return next(boom.unauthorized());
+    }
+
+    const { token, ...user } = req.user.body;
+
+    res.cookie('token', token, {
         httpOnly: !config.api.dev,
         secure: !config.api.dev
     });
