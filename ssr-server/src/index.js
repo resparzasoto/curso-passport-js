@@ -121,12 +121,14 @@ async function googleCallback(req, res, next) {
         return next(boom.unauthorized());
     }
 
-    const { token, user } = req.user;
+    const { token, ...user } = req.user.body;
 
     res.cookie('token', token, {
         httpOnly: !config.api.dev,
         secure: !config.api.dev
     });
+
+    res.status(200).json(user);
 }
 
 app.listen(config.api.port, function () {

@@ -7,7 +7,7 @@ const ApiKeysService = require('../services/apiKeys')
 const UsersService = require('../services/users');
 
 const validationHandler = require('../../utils/middleware/validationHandler');
-const { createUserSchema } = require('../../utils/schemas/user');
+const { createUserSchema, createProviderUserSchema } = require('../../utils/schemas/user');
 
 const { config } = require('../../config');
 const response = require('../../network/response');
@@ -26,6 +26,7 @@ function authApi(app) {
 
     router.post('/sign-in', signIn);
     router.post('/sign-up', validationHandler(createUserSchema), signUp);
+    router.post('/sign-provider', validationHandler(createProviderUserSchema), signProvider);
 
     async function signIn(req, res, next) {
         const { apiKeyToken } = req.body;
@@ -91,6 +92,47 @@ function authApi(app) {
             response.success(req, res, message, 201);
         } catch (error) {
             next(error);
+        }
+    }
+
+    async function signProvider(req, res, next) {
+        const { body } = req;
+
+        const { apiKeyToken, ...user } = body;
+
+        if (!apiKeyToken) {
+            return next(boom.unauthorized('apiKeyToken is required'));
+        }
+
+        try {
+            const queriedUser = await usersService.getOrCreateUser({ user });
+            const apiKey = await apiKeysService.getApiKey({ token: apiKeyToken });
+
+            if (!apiKey) {
+                return next(boom.unauthorized());
+            }
+
+            const { _id: id, name, email } = queriedUser;
+
+            const payload = {
+                sub: id,
+                name,
+                email,
+                scopes: apiKey.scopes
+            };
+
+            const token = jwt.sign(payload, config.api.authJwtSecret, {
+                expiresIn: '15m'
+            });
+
+            const message = {
+                token,
+                user: { id, name, email }
+            };
+
+            response.success(req, res, message);
+        } catch (error) {
+            return next(error);
         }
     }
 }

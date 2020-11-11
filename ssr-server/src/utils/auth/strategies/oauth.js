@@ -19,14 +19,14 @@ const oAuth2Strategy = new OAuth2Strategy
         callbackURL: '/auth/google-oauth/callback'
     },
     async function(accessToken, refreshToken, profile, cb) {
-        const { data, status } = axios({
-            url: `${config.apiMovies.apiUrl}/api/auth/sing-provider`,
+        const { data, status } = await axios({
+            url: `${config.apiMovies.apiUrl}/api/auth/sign-provider`,
             method: 'POST',
             data: {
                 name: profile.name,
                 email: profile.email,
                 password: profile.id,
-                apiKeyToken: config.apiKeyToken
+                apiKeyToken: config.apiMovies.apiKeyToken
             }
         });
 
