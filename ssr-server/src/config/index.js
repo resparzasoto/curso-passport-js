@@ -8,6 +8,10 @@ const config = {
     apiMovies: {
         apiUrl: process.env.API_URL,
         apiKeyToken: process.env.API_KEY_TOKEN
+    },
+    oauth: {
+        googleClientId: process.env.GOOGLE_CLIENT_ID,
+        googleClientSecret: process.env.GOOGLE_CLIENT_SECRET
     }
 };
 

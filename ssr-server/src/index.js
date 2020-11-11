@@ -16,7 +16,10 @@ app.use(morgan('tiny'));
 app.use(cookieParser())
 
 require('./utils/auth/strategies/basic');
+require('./utils/auth/strategies/oauth');
 
+app.get('/auth/google-oauth', passport.authenticate('google-oauth', { scope: ['email', 'profile', 'openid'] }));
+app.get('/auth/google-oauth/callback', passport.authenticate('google-oauth', { session: false }), googleCallback);
 app.post('/auth/sign-in', signIn);
 app.post('/auth/sign-up', signUp);
 app.get('/movies', getMovies);
@@ -111,6 +114,19 @@ async function deleteUserMovie(req, res, next) {
     } catch (error) {
         next(error);
     }
+}
+
+async function googleCallback(req, res, next) {
+    if (!req.user) {
+        return next(boom.unauthorized());
+    }
+
+    const { token, user } = req.user;
+
+    res.cookie('token', token, {
+        httpOnly: !config.api.dev,
+        secure: !config.api.dev
+    });
 }
 
 app.listen(config.api.port, function () {
