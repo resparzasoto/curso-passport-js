@@ -12,8 +12,8 @@ passport.use(
                 url: `${config.apiMovies.apiUrl}/api/auth/sign-in`,
                 method: 'post',
                 auth: {
-                     password,
-                     username: email
+                    password,
+                    username: email
                 },
                 data: {
                     apiKeyToken: config.apiMovies.apiKeyToken

@@ -17,9 +17,12 @@ app.use(cookieParser())
 
 require('./utils/auth/strategies/basic');
 require('./utils/auth/strategies/oauth');
+require('./utils/auth/strategies/google');
 
 app.get('/auth/google-oauth', passport.authenticate('google-oauth', { scope: ['email', 'profile', 'openid'] }));
-app.get('/auth/google-oauth/callback', passport.authenticate('google-oauth', { session: false }), googleCallback);
+app.get('/auth/google-oauth/callback', passport.authenticate('google-oauth', { session: false }), googleOAuthCallback);
+app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile', 'openid'] }));
+app.get('/auth/google/callback', passport.authenticate('google', { session: false }), googleCallback);
 app.post('/auth/sign-in', signIn);
 app.post('/auth/sign-up', signUp);
 app.get('/movies', getMovies);
@@ -116,7 +119,7 @@ async function deleteUserMovie(req, res, next) {
     }
 }
 
-async function googleCallback(req, res, next) {
+async function googleOAuthCallback(req, res, next) {
     if (!req.user) {
         return next(boom.unauthorized());
     }
@@ -124,6 +127,21 @@ async function googleCallback(req, res, next) {
     const { token, ...user } = req.user.body;
 
     res.cookie('token', token, {
+        httpOnly: !config.api.dev,
+        secure: !config.api.dev
+    });
+
+    res.status(200).json(user);
+}
+
+async function googleCallback(req, res, next) {
+    if (!req.user) {
+        return next(boom.unauthorized());
+    }
+
+    const { token, ...user } = req.user.body;
+
+    res.cookie('token', token,  {
         httpOnly: !config.api.dev,
         secure: !config.api.dev
     });
