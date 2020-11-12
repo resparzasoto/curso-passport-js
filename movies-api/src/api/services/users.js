@@ -29,7 +29,7 @@ class UsersService {
     async getOrCreateUser({ user }) {
         const queriedUser = await this.getUser({ email: user.email });
 
-        if (!queriedUser) {
+        if (queriedUser) {
             return queriedUser;
         }
 
